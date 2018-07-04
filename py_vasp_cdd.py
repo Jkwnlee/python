@@ -1,17 +1,9 @@
 #!/bin/python
 
-### The python code for atomatic Wulff construction
+### The python code for charge density difference in 1D
 ### Written by Ji-Hwan Lee
-### Last update:20 jan 2017
-### Used library:os, math, ase
-### Purpose: make wulff construction  --> go to 
-### step 1: Revise surface_slab_fcc_bcc into python
-### setp 2: 
-
-### The python code for 
-### Written by Ji-Hwan Lee
-### Please use this code and cite our surface energy library
-### S.-H. Yoo, J.-H. Lee, Y.-K. Jung, and A. Soon, Phys. Rev. B 93, 035434 (2016).
+### Last update:2018.7.5
+### Used library:os, math
 
 import os
 import math 
