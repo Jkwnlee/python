@@ -1,3 +1,0 @@
-# POST PROCESS CODES FOR CHGCAR
-## READ   :CHGCAR, POSCAR (input/output of DFT code, VASP)
-## WRITE  :1D averaged charge density as function of distance along c (or z axis) 
