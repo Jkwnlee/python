@@ -1,9 +1,11 @@
 #!/bin/python
 
-### The python code for charge density difference in 1D
+### The python code for charge density difference (cdd) in 1D
 ### Written by Ji-Hwan Lee
 ### Last update:2018.7.5
 ### Used library:os, math
+### INPUT : POSCAR, CHGCAR_A, CHGCAR_B,CHGCAR_Total
+### OUTPUT: 'output.txt' including distance, cdd in unit of e/A^3, and  cdd in unit of e
 
 import os
 import math 
