@@ -7,7 +7,7 @@
 ### Detail functions are in 'py_vasp_post_locpot_to_1D_fun_lib.py'
 ### The python code for 
 ### Written by Ji-Hwan Lee
-
+### TEST in hynix
 import os
 import math 
 
