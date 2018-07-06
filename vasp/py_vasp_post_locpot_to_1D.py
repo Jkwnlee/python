@@ -69,7 +69,7 @@ def check_the_input_path(target):
         sys.exit()
 
 def main():
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 2:
         poscar = './input/POSCAR'
         locpot = './input/LOCPOT'
         ploting= False
@@ -81,7 +81,7 @@ def main():
         [CODE] 
         [CODE] if you want to choose certain file,
         [CODE] $ python  py_vasp_post_chgcar_to_1D.py  ./input/POSCAR ./input/LOCPOT ''' %(poscar, locpot)
-    elif len(sys.argv) == 3:
+    elif len(sys.argv) == 4:
         poscar = sys.argv[1]
         locpot = sys.argv[2]
         outname=sys.argv[len(sys.argv)-1]
@@ -93,7 +93,7 @@ def main():
         [CODE] 
         [CODE] if you want to draw local potentail as function of z-axis,
         [CODE] $ python  py_vasp_post_chgcar_to_1D.py  ./input/POSCAR ./input/LOCPOT True''' %(poscar, locpot)
-    elif len(sys.argv) == 4:
+    elif len(sys.argv) == 5:
         poscar = sys.argv[1]
         locpot = sys.argv[2]
         ploting= sys.argv[3]
@@ -104,9 +104,9 @@ def main():
         [CODE]     LOCPOT : %s 
         [CODE] 
         [CODE] You allow the drawing LOCPOT (taking a time a bit)''' %(poscar, locpot)
-    elif len(sys.argv) < 2:
+    elif len(sys.argv) == 2:
         outname='out_locpot_1D'
-
+    
     check_the_input_path(poscar)
     check_the_input_path(locpot)
 
@@ -120,6 +120,7 @@ def main():
 	                plot            =ploting   ,\
 	                output_name     =outname   )
 
-
 if __name__ == "__main__":
-    main()
+	main()
+
+		
