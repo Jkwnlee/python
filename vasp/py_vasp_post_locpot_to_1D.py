@@ -40,8 +40,8 @@ def read_LOCPOT_line(filename):
 	return line_density
 
 
-def write_LOCPOT_line(unitcell, local_potental, plot=False,  output_name='output_lp.txt'):
-    f=open(output_name,'w' )
+def write_LOCPOT_line(unitcell, local_potental, plot=False,  output_name='output_lp'):
+    f=open(output_name+'.txt','w' )
     f.write('%22.16s%22.16s \n' %('distance','local_potental'))
     for a in range(len(local_potental)):
         f.write('%22.16f%22.16f \n' %(float(unitcell[2][2])*a/len(local_potental),  local_potental[a] ))
@@ -49,19 +49,17 @@ def write_LOCPOT_line(unitcell, local_potental, plot=False,  output_name='output
 
     if plot:
         import matplotlib.pyplot as plt
-        f = open(output_name,'r')
+
+        f = open(output_name+'.txt','r')
         x=[]; y=[]; i = 1
         for a in f:
-#            print a.split(),i,
-
-            if i == 1: pass 
+            if i == 1: i = i + 1
             else:
                 x.append(float(a.split()[0]))
                 y.append(float(a.split()[1]))
-            i = i + 1 
-            
         plt.plot(x,y)
-        plt.savefig(output_name.replace('txt', 'png'))
+        plt.savefig(output_name+'.png')
+#        plt.savefig(output_name.replace('txt', 'png'))
 
 
 def check_the_input_path(target):
@@ -75,6 +73,7 @@ def main():
         poscar = './input/POSCAR'
         locpot = './input/LOCPOT'
         ploting= False
+        outname=sys.argv[len(sys.argv)-1]
         print '''\
         [CODE] Automatically choose the input file: POSCAR and LOCPOT:
         [CODE]     POSCAR : %s
@@ -85,6 +84,7 @@ def main():
     elif len(sys.argv) == 3:
         poscar = sys.argv[1]
         locpot = sys.argv[2]
+        outname=sys.argv[len(sys.argv)-1]
         ploting= False
         print '''\
         [CODE] You choose the input file: POSCAR and LOCPOT:
@@ -97,12 +97,15 @@ def main():
         poscar = sys.argv[1]
         locpot = sys.argv[2]
         ploting= sys.argv[3]
+        outname=sys.argv[len(sys.argv)-1]
         print '''\
         [CODE] You choose the input file: POSCAR and LOCPOT:
         [CODE]     POSCAR : %s
         [CODE]     LOCPOT : %s 
         [CODE] 
         [CODE] You allow the drawing LOCPOT (taking a time a bit)''' %(poscar, locpot)
+    elif len(sys.argv) < 2:
+        outname='out_locpot_1D'
 
     check_the_input_path(poscar)
     check_the_input_path(locpot)
@@ -115,7 +118,7 @@ def main():
     write_LOCPOT_line(  unitcell        =unitcell  ,\
 	                local_potental  =total     ,\
 	                plot            =ploting   ,\
-	                output_name     ='out_locpot_1D.txt')
+	                output_name     =outname   )
 
 
 if __name__ == "__main__":
