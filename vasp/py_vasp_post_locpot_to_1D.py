@@ -93,7 +93,7 @@ def read_LOCPOT_line(filename):
 	return line_density
 
 
-def write_LOCPOT_line(unitcell,local_potental,plot=False, output_name='output.txt'):
+def write_LOCPOT_line(unitcell,local_potental,plot=False, output_name='output_lp.txt'):
     result=[]
     f=open(output_name,'w' )
     f.write('%22.16s%22.16s \n' %('distance','local_potental'))
@@ -115,10 +115,30 @@ def write_LOCPOT_line(unitcell,local_potental,plot=False, output_name='output.tx
         plt.savefig(output_name.replace('txt', 'png'))
 
 
-def main():
-	unitcell, compound, position = r_cryst_vasp('./input/POSCAR')
+if len(sys.argv) > 1:
+    poscar = './input/POSCAR'
+    locpot = './input/LOCPOT'
+    print '''\
+[CODE] Automatically choose the input file: POSCAR and CONTCAR like,\n
+[CODE] POSCAR : %s
+[CODE] LOCPOT : %s
+[CODE] 
+[CODE] if you want to choose certain file,
+[CODE] $ python  py_vasp_post_chgcar_to_1D.py  ./input/POSCAR ./input/LOCPOT ''' %(poscar, locpot)
+else:
+    poscar = sys.argv[1]
+    locpot = sys.argv[2]
+    print '''\
+[CODE] You choose the input file: POSCAR and LOCPOT like,\n
+[CODE] POSCAR : %s
+[CODE] LOCPOT : %s ''' %(poscar, locpot)
+                  
 
-	total = read_LOCPOT_line('./input/LOCPOT')
+
+def main():
+	unitcell, compound, position = r_cryst_vasp(poscar)
+
+	total = read_LOCPOT_line(locpot)
 	write_LOCPOT_line(  unitcell        =unitcell  ,\
 	                        local_potental  =total     ,\
 	                        plot            =True      ,\
