@@ -1,7 +1,7 @@
 #!/bin/pyton2
 
 # Ji-Hwan Lee
-
+# final revised date: 2018.07.10
 # graphical tool for ab initio plotting
 
 import numpy as np
@@ -9,7 +9,7 @@ import os
 import matplotlib.pyplot as plt
 
 ############################################################
-__version__ = "2.0"
+__version__ = "2.1"
 ############################################################
 def set_plot_2d(fig_a, label_swch=True,legend_swch =True): 
     if label_swch == True:
@@ -286,6 +286,17 @@ def aiAT_boltzmann(system, num_points, enthalpy, entropy, temp_range, target_p, 
 ############################################################
 ############################################################
 
+def write_xy(x,y,header):
+    f = open('output_'+header+'.txt','w')
+    f.write("%22.16s%22.16s"%(header+'_xdata',header+'_ydata'))
+    if len(x) == len(y):
+        for a in range(len(x)):
+            f.write("%22.16s%22.16s"%(x[a],y[a]))
+    else: print "[ERROR] the input length is wrong, please check the x,y data"
+        
+############################################################
+############################################################
+
 
 global E_bulk_TiN ; E_bulk_TiN = -19.42816              # eV/TiN
 global E_bulk_Ti  ; E_bulk_Ti  = -15.674779/2           # eV/Ti atom
@@ -316,19 +327,12 @@ dmu_N, dmu_O = np.meshgrid(np.linspace(mu_min1, mu_max1, num_points), \
 				   
 #symetric calculation
 systems = [
-	['(111):Ti',   -.84673034E+02,  4, 0, 5, 7.8189819348124, "#4d4d4d"],\
-	['(111):Ti-O$_{0.8}$N$_{0.2}$', -.62316683E+03,  27, 8, 30, 7.8189819348124*5, 		"#ccccff"]#,\
-  ['TiO$_{2}$', E_bulk_TiO2, 0, 2, 1, 0,"black"]
+	['p1', -84.673034,  4, 0, 5, 7.8189819348124, "#4d4d4d"],\
+	['p2', -602.89072,  25, 8, 30, 7.8189819348124*5, "#ff704d"],\
+	['p3', -623.16683,  27, 8, 30, 7.8189819348124*5, 		"#ccccff"],\
+        ['p4', -187.70645,   7,4,9,9.0285826576,"black"]
 	]
 
-#asymetric system	   
-systems1 = [
-	      ['(100)'  ,-76.917462, 4,   0,  4, 1*9.0245714, "#4d4d4d"],\
-        ['(100):O$_{0.25}^{\\rm ad}$'  , -315.3454,  16,   1, 16, 4*9.0245714, "#ffcccc"],\
-        ['(100):O$_{0.5}^{\\rm ad}$'  , -322.5520,   16,   2, 16, 4*9.0245714, "#ffb3b3"],\
-        ['(100):O$_{0.75}^{\\rm ad}$'  , -328.6412,  16,   3, 16, 4*9.0245714, "#ff704d"],\
-        ['(100):O$_{1.00}^{\\rm ad}$'  , -83.63019,   4,   1,  4, 1*9.0245714, "#ff3300"]
-    ]
 
 
 
@@ -353,7 +357,10 @@ if __name__ == '__main__':
     O_on_surf_Nl = aiAT_boltzmann(systems, num_points, enthalpy, entropy, temp_range, bolzman_target_p/0.00131579, E_form) #torr to atm
     os.system('mv Fig4_boltzmann.png Fig4_boltzmann_N_lean.png')
 
-
+# Write the output file
+    write_xy(temp_range,O_on_surf_Nl,'boltzmann')
+    
+# Draw the output file
     fig,((fig_a))= plt.subplots(1, 1)
     fig.subplots_adjust(left=0.15, bottom = 0.15, right =0.95, top = 0.90, wspace=0.5, hspace=0.5)
     fig.set_size_inches(6, 6) # (width, height) in inches
