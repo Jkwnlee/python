@@ -25,16 +25,17 @@ def doping_cell(inputs):
   new_position = []
   temp_position=[]
   for a in range(len(position)):
-    if position[a][0] == target_ele and i == num_ta_ele: 
-      temp_position = position[a]
-      temp_position[0] = change_ele
+    if position[a][0] == target_ele:
+      if i == num_ta_ele: 
+        temp_position = position[a]
+        temp_position[0] = change_ele
 #      print temp_position[0], i
-    else:
-      new_position.append(position[a])
-    i = i + 1
+      else: new_position.append(position[a])
+      i = i + 1
+    else: new_position.append(position[a])
   new_position.append(temp_position)
+  print temp_position,num_ta_ele,target_ele
 #  for a in new_position:
-#@    print a
   new_compound, new_position1 = jh.component_from_positions(new_position)
 #  print position1, new_compound
   jh.w_poscar(position = new_position1, \
