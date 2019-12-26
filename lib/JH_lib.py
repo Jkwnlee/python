@@ -10,7 +10,6 @@ import os
 import math
 import sys
 import time
-import numpy as np
 ## ------------------------------------------------------------------------------
 """
 LIST-A [FOR STRUCTURES]
@@ -92,7 +91,6 @@ def r_cryst_vasp(filename):
     def _judge_coord(i,r):
         judge_ = 0.
         len_   = 0.
-        print i, r
         for a in range(len(i)):
             len_   = len_ + i[a]**2
             judge_ = judge_ + i[a] * r[a+1]
@@ -128,9 +126,7 @@ def r_cryst_vasp(filename):
                         scaled_coo = 0.0
                         for svec_num1 in range(3):  
                             scaled_coo = scaled_coo +  scales[svec_num1][svec_num2] *coo[svec_num1]
-                            print coo[svec_num1], scales[svec_num1][svec_num2], scaled_coo
                         te.append(scaled_coo)
-                        print te
                     [x, y, z] = te
                     if k <= int(comp[1][kn]):
                         if Selective: posi.append([comp[0][kn], x, y, z, l.split()[3], l.split()[4], l.split()[5]])
