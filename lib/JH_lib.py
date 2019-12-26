@@ -1,18 +1,16 @@
-### The python code for atomatic Wulff construction
 ### Written by Ji-Hwan Lee
-### Last update: 2018. 07. 24
+### Last update: 2019. 12. 26
 ### Used library:os, math, time, sys
-
+### Last Update : read non-orthogonal structure in r_cryst_vasp
 ### The python code for 
 ### Written by Ji-Hwan Lee
 
 
 import os
-import math 
+import math
 import sys
 import time
-
-
+import numpy as np
 ## ------------------------------------------------------------------------------
 """
 LIST-A [FOR STRUCTURES]
@@ -85,65 +83,71 @@ LIST-A [FOR STRUCTURES]
         # Shift the initial point with following vector
     6-5 [up] distance_atoms(a1,a2)
         # Calculate the distance between atoms (two vectors)
-
+    6-6 macroscopic_average(x,y,unitcell, number_of_grid): return macroscopic_average
 
 """
 ## ------------------------------------------------------------------------------
 
-
 def r_cryst_vasp(filename):
+    def _judge_coord(i,r):
+        judge_ = 0.
+        len_   = 0.
+        print i, r
+        for a in range(len(i)):
+            len_   = len_ + i[a]**2
+            judge_ = judge_ + i[a] * r[a+1]
+        judge_ =  judge_ / (len_**0.5)
+        if judge_ > 0 and judge_ < 1: return True
+        else: return False
     """
     Filename: VASP, POSCAR TYPE
     Function: Read POSCAR type 
     """
-    poscar=[]; unitcell=[]; compound=[]; position=[];scales=[];num_atoms=0
+    poscar=[]; uc=[]; comp=[]; posi=[];scales=[];num_atoms=0
     with open(filename, 'r') as f:
         i = 1; j = 1; k =0; Selective=False; kn = 0
-        for line in f:
-            if line == None: break
-            if i > 2 and i <6:
-                unitcell.append([float(line.split()[0]),float(line.split()[1]),float(line.split()[2])])
-            elif i > 5 and i < 8:
-                compound.append(line.split())
+        for l in f:
+            if l == None: break
+            if   i > 2 and i < 6: uc.append([float(l_i) for l_i in l.split()])
+            elif i > 5 and i < 8: comp.append(l.split())
             elif i == 8 :
                 if j == 1 :
-                    if line.split()[0][0] == 'S':
-                        # print 'Selective Dynamics are applied'
-                        Selective= True
-                        i = i - 1
+                    if l.split()[0][0] == 'S':
+                        Selective= True; i = i - 1
                     j = 2
                 if j == 2:
-                    if line.split()[0][0] == 'C':
-                        scales=[[1.,0,0],[0,1.,0],[0,0,1.]]
-                    elif line.split()[0][0] == 'D':
-                        scales=[[ float(unitcell[0][0]), float(unitcell[0][1]), float(unitcell[0][2])],\
-                                [ float(unitcell[1][0]), float(unitcell[1][1]), float(unitcell[1][2])],\
-                                [ float(unitcell[2][0]), float(unitcell[2][1]), float(unitcell[2][2])]]
+                    if   l.split()[0][0] == 'C': scales=[[1.,0,0],[0,1.,0],[0,0,1.]]
+                    elif l.split()[0][0] == 'D': scales=uc
                 if num_atoms == 0:
-                    for temp in compound[1]: num_atoms=num_atoms+int(temp)
-
+                    for temp in comp[1]: num_atoms=num_atoms+int(temp)
             elif i > 8 :
                 if i <= 9 + num_atoms:
-                    x = scales[0][0] * float(line.split()[0]) + scales[1][0] * float(line.split()[1]) + scales[2][0] * float(line.split()[2])
-                    y = scales[0][1] * float(line.split()[0]) + scales[1][1] * float(line.split()[1]) + scales[2][1] * float(line.split()[2])
-                    z = scales[0][2] * float(line.split()[0]) + scales[1][2] * float(line.split()[1]) + scales[2][2] * float(line.split()[2])
-                    if k <= int(compound[1][kn]):
-                        if Selective:
-                            position.append([compound[0][kn], x, y, z, line.split()[3], line.split()[4], line.split()[5]])
-                        else:
-                            position.append([compound[0][kn], x, y, z])
+                    te=[]
+                    coo = [float(l_i) for l_i in l.split()]
+                    for svec_num2 in range(3):
+                        scaled_coo = 0.0
+                        for svec_num1 in range(3):  
+                            scaled_coo = scaled_coo +  scales[svec_num1][svec_num2] *coo[svec_num1]
+                            print coo[svec_num1], scales[svec_num1][svec_num2], scaled_coo
+                        te.append(scaled_coo)
+                        print te
+                    [x, y, z] = te
+                    if k <= int(comp[1][kn]):
+                        if Selective: posi.append([comp[0][kn], x, y, z, l.split()[3], l.split()[4], l.split()[5]])
+                        else:         posi.append([comp[0][kn], x, y, z])
                     k= k+1
-
-                    if k == int(compound[1][kn]):
+                    if k == int(comp[1][kn]):
                         kn = kn + 1
                         k = 0
-
-
             if i == 8 + num_atoms:
-                return unitcell, compound, position
-            else:
-                i = i + 1
-
+            #judge the position (r) is in the unitcell (a,b,c) : 0<dot(i,r)/|i|< 1
+                for a in posi:
+                    for x in range(3):
+                        if _judge_coord(uc[x], a): pass
+                        else: #move with consideration of periodic boundary condition
+                            a = a + uc[x]
+                return uc, comp, posi
+            else:  i = i + 1
 
 ## ------------------------------------------------------------------------------
 
