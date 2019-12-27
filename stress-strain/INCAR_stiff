@@ -1,0 +1,84 @@
+#0. Spin
+#   ISPIN = 2
+   #MAGMOM = 
+   #ISYM  = 0           ! only reducing B-Zone point - 0 (For OSA) 
+                       ! effeictive - 2 (DF) ; simple sym - 1 ; -1: mlc/no sym
+#   ISTART = 1
+#   ICHARG = 2         ! 2 : Take superposition of atomic charge densities
+#                      ! DF - 2 (ISTART =0) or 0 (calculate charge density from initial wave functions)
+#                      ! 1: Read CHGCAR  / (11 - For 
+
+#1. Accuracy
+   PREC   = accurate
+   LASPH  = .TRUE.     ! Corrections to energy 
+                       ! non-spherical contributions related to the gradient of the density in the PAW spheres
+#   ADDGRID= .TRUE.     ! 
+   EDIFF  =  1E-05     ! Energy cutoff (DF - 1e-5)
+   EDIFFG = -1e-02     ! negatice: all atom Force cutoff  (positive: Ionic relation cutoff, DF - 10 * EDIFFG)
+   ENCUT  =  500       ! 1.3 Times than Maximum ENMAX in POTCAR
+   NELMIN =    3       ! minimun number iteration 
+
+
+#2. Effectivity
+#2.1 Parallel
+#   NBANDS = 256       ! More than half of total number of valence electron ( NELECT ) 
+   KPAR   = 4         ! common divisor for the number of total KPOINTS ( IBZKPT ) and CPU
+   NCORE  = 1         ! recommend- number of cores per node (or half)
+
+#2.2 Interaction btw Nodes
+#   LPANE  = .TRUE.    ! TRUE: the number of nodes < NGX, NGY and NGZ
+#   NSIM   = 4         ! number of bands are optimized simultaneously by the RMM-DIIS(ALGO = Normal / IALGO = 48)
+#                      ! 1: n_core > 500 ; else ~ 
+
+#2.3 MIXING for electron relaxation
+#   AMIN = 0.01        ! ~ 0.01 for slab (z > 50 A) (DF - 0.1) 
+#   AMIX = 0.4         ! mixing.. Para to define GAMMA in outcar 
+#   BMIX = 1.0         ! cutoff wave vector for Kerker mixing scheme 1.0 for PAW ( 0.0001 - linear )
+#   BMIX_MAG = 1.0     ! cutoff wave vector for Kerker mixing scheme for magnetism (0.0001 --> linear)
+#   LMAXMIX = 4        ! 6: considering until f orbital ; 4 : until d orbital ; DF - 2
+
+#3. Smearing
+   ISMEAR = -5         ! 0: Gaussian   -5: tetrahedron (more than 1 kps)
+   SIGMA  = 0.001      ! Smearing width
+   LREAL  = .FALSE.    ! To get quick result (AUTO or TRUE)
+   ALGO   = Fast
+#   IALGO = 38         ! 38: Algo normal/Kosugi algorithm
+
+#4. Relaxation and MD
+   NSW    = 1          ! maximun number iteration 
+   IBRION = 6          ! 2: relax ; -1: fix ; 0 : MD ; 1 : relax
+   POTIM  = 0.01
+   NELM   = 300
+   ISIF   = 3
+   NFREE  = 4
+ 
+#5. Corrections
+#5.1 Dipole correction
+#   LDIPOL = .TRUE.    ! Turn on the correction (DF; False) 
+#   IDIPOL = 3         ! Directions 3:z, 2;y, 1: x, 4: all-direct
+#   DIPOL  = .0 .0 .5  ! position of dipol  
+
+#5.2 VDW effect
+#   IVDW   =  11        ! Simple adding enegy after xc-functional scf energy
+#                       ! 1: D2  11:D3   12: D3BJ    20:TS   21:TS+SCS   
+#                       ! 202:MBD@rSC  4:dDsC                                                   
+                                                  
+#5.3 META-GGA
+# METAGGA = SCAN
+
+#6. Output data
+#6.1 Local Potentials: LOCPOT
+#   LVTOT = .TRUE.
+#   LVHAR = .TRUE.
+
+#6.2 CHGCAR/WAVECAR
+   LCHARG = .FALSE.
+   LWAVE  = .FALSE.
+
+#6.3 DOSCAR/PROCAR
+   LORBIT = 10        ! DOSCAR and PROCAR file neglecting RWING tag
+
+#6.4 In OUTCAR 
+#   ICORELEVEL = 1     ! KS eigenvalues of the core states after a self-consistent calculation of the valence charge density
+#   LVTOT  = .TRUE.    ! for icorelevel 1, increase accuracy
+#                      ! For icorelevel 2, increase NELECT
