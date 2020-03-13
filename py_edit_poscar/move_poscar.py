@@ -10,6 +10,9 @@ import numpy as np
 from optparse import OptionParser
 #1. Read.
 import sys
+############################################################
+__version__ = "1.0"
+############################################################
 
 print """[CODE] run this commend with target POSCAR file name and distance which you want:
 [CODE] for example: python /team/ptcad/jhlee/b_codework/py_move-poscar/move_poscar.py POSCAR 1 1 1
@@ -22,7 +25,7 @@ if __name__ == '__main__':
     from time import time
     t0 = time()
     filename = sys.argv[1]
-    ## Lines for JH in SK hynix (180326)
+
     unitcell, compound, position = jh.r_cryst_vasp(filename)
     new_position = jh.pst_poscar_move(position, float(sys.argv[2]), \
                                     float(sys.argv[3]),float(sys.argv[4]))
@@ -35,5 +38,3 @@ if __name__ == '__main__':
     jh.w_poscar(position, compound = compound, filename = 'new.vasp', unitcell = unitcell, Selective = select)
 
     t1 = time()
-
-
