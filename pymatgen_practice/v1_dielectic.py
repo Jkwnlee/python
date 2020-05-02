@@ -36,40 +36,52 @@ for i in range(df2.shape[0]):
                                 #+ (df2.e_electronic[0][0][0][0] + df2.e_electronic[0][0][1][1]+df2.e_electronic[0][0][2][2])/3 
     df2['band_gap'].iloc[i] = df2.meta[i]['bandgap'][0][0]
     
-fig, ax = plt.subplots(nrows=1, ncols=1)
+font_size, scale = 16, 8
 
-plt1 = sns.scatterplot(data = df1 , x='band_gap', y='poly_total', color = 'black', size=1, 
-                       ax = ax, label='Petousis2017')
-plt2 = sns.scatterplot(data = df2 , x='band_gap', y='poly_total', color = 'red'  , size=1,
-                       ax = ax, label='Jingyu2020')
-ax.set(xscale = 'log', yscale = 'log', 
-       xlim = [1e-1, 1e1] , ylim=[1e0,1e3], 
-       ylabel = '$\\varepsilon_{\\rm poly}$ (arb.)', 
-       xlabel = '$E_{\\rm g}$ (eV)')
-ax.grid(which='major',axis='both', color='grey',linestyle='-', linewidth=0.5)
-ax.grid(which='minor',axis='both', color='red',linestyle='--', linewidth=0.1)
-# ax.legend(handles=[plt1, plt2])  ## Need to Update
+cols , rows = 1,1
+# msize = 100
+fig, ax = plt.subplots(ncols =cols, nrows=rows, figsize=(cols*scale*1.5,rows*scale))
+plt.rcParams['font.size'] = font_size
 
 
 ## Text and line trend study 
 x= np.array([1e-1, 1e1])
-x_shift = 1.2
-y_shift = 0.75
+x_shift = 1.4
+y_shift = 0.5
 for c1 in [2,4,8,16]:
-    ax.plot(x,(c1/x)**2,'g', '--', linewidth=0.5 )
+    ax.plot(x,(c1/x)**2,'g', '--', linewidth=0.3 )
     if   (c1/x[0])**2 < 1e3:
-        ax.text(x[0]*x_shift, (c1/x[0])**2* y_shift, 'c=%i' %c1, color = 'g')
+        ax.text(x[0]*x_shift, (c1/x[0])**2* y_shift, 'c$_{1}=%i$' %c1, color = 'g')
     else:
-        ax.text(c1/(1e3)**0.5*x_shift, 1e3* y_shift, 'c=%i' %c1, color = 'g')
+        ax.text(c1/(1e3)**0.5*x_shift, 1e3* y_shift, 'c$_{1}=%i$' %c1, color = 'g')
    
 
-x_shift = 0.70
-y_shift = 1.05
+x_shift = 1
+y_shift = 0.80
 for c2 in [10,20,40,80, 160]:
-    ax.plot(x,(c2/x),'r', '--', linewidth=0.5 )
+    ax.plot(x,(c2/x),'r', '--', linewidth=0.3 )
     if   (c2/x[0]) < 1e3:
-        ax.text(x[0]*x_shift, (c2/x[0])* y_shift, 'c=%i' %c2, color = 'r')
+        ax.text(x[0]*x_shift, (c2/x[0])* y_shift, 'c$_{2}=%i$' %c2, color = 'r')
     else:
-        ax.text(c2/1e3*x_shift, 1e3* y_shift, 'c=%i' %c2, color = 'r')
+        ax.text(c2/1e3*x_shift, 1e3* y_shift, 'c$_{2}=%i$' %c2, color = 'r')
+        
+        
+plt1 = sns.scatterplot(data = df1 , x='band_gap', y='poly_total', color = 'black', size=1, 
+                       ax = ax, legend= False)#
+plt2 = sns.scatterplot(data = df2 , x='band_gap', y='poly_total', color = 'red'  , size=1,
+                       ax = ax, legend= False)#, label='Jingyu2020')
 
+plt1l = ax.plot(0,0, 'o', c='black',label='Petousis2017')
+plt2l = ax.plot(0,0, 'o', c='red',  label='Jingyu2020')
 
+ax.set(xscale = 'log', yscale = 'log', 
+       xlim = [1e-1, 1e1] , ylim=[1e0,1e3], 
+       ylabel = '$\\varepsilon_{\\rm poly}$ (arb.)', 
+       xlabel = '$E_{\\rm g}@GGA$ (eV)',
+       title  = '$c_1 = E_{\\rm g}\cdot \\sqrt{\\varepsilon_{\\rm poly}}$ \
+and $c_2 = E_{\\rm g}\cdot \\varepsilon_{\\rm poly}$ ')
+ax.grid(which='major',axis='both', color='grey',linestyle='-', linewidth=0.5)
+ax.grid(which='minor',axis='both', color='red',linestyle='--', linewidth=0.1)
+ax.legend()  ## Need to Update
+
+plt.savefig('fig_data_reproduce.png', dpi = 500)
