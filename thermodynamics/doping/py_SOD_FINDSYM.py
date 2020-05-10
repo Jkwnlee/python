@@ -65,12 +65,12 @@ def command_line_arg():
     
     par.add_option("--findsympath", 
             action='store', type="string", dest='findsympath',
-            default='/team/ptcad/jhlee/b_codework/py_sod_findsym/findsym/bin',
+            default='Users/jihwan/Dropbox/my_portpolio/my_programs/Findsym',
             help='location of findsym binary folder: Default - ~findsym/bin)')
 
     par.add_option("--sodpath", 
             action='store', type="string", dest='sodpath',
-            default='/team/ptcad/jhlee/b_codework/py_sod_findsym/sod/src/sod-0.47/bin/sod_comb.sh',
+            default='/Users/jihwan/Dropbox/my_portpolio/my_programs/SOD/sod-0.47/bin/sod_comb.sh',
             help='location of sod_comb.sh folder: Default - ~sod-0.47/bin/sod_comb.sh)')
     
     
