@@ -4,19 +4,35 @@ import os
 import numpy as np
 from optparse import OptionParser
 
-__version__ = '1.0',
+__version__ = '1.1',
 __auther__  = "Ji-Hwan Lee (jihwan.lee@sk.com)",
 __summary__ = "Merge Two GNU CODE for doping (SOD and Findsym)"
+
 ############################################################
 
 def from_operation_xyz_to_matrix(input_opteration):
-    if input_opteration ==  'x':return [ 1, 0, 0]
-    if input_opteration == '-x':return [-1, 0, 0]
-    if input_opteration ==  'y':return [ 0, 1, 0]
-    if input_opteration == '-y':return [ 0,-1, 0]
-    if input_opteration ==  'z':return [ 0, 0, 1]
-    if input_opteration == '-z':return [ 0, 0,-1]
-
+    output = [0,0,0]
+    
+    if   input_opteration ==  '-x': output =  [ -1,  0,  0]
+    elif input_opteration ==  '-y': output =  [  0, -1,  0]
+    elif input_opteration ==  '-z': output =  [  0,  0, -1]   
+    elif input_opteration ==   'x': output =  [  1,  0,  0]
+    elif input_opteration ==   'y': output =  [  0,  1,  0]
+    elif input_opteration ==   'z': output =  [  0,  0,  1]
+    elif input_opteration =='-x+y': output =  [ -1,  1,  0]
+    elif input_opteration == 'y-x': output =  [ -1,  1,  0]
+    elif input_opteration =='-x+z': output =  [ -1,  0,  1]
+    elif input_opteration == 'z-x': output =  [ -1,  0,  1]
+    elif input_opteration =='-y+x': output =  [  1, -1,  0]
+    elif input_opteration == 'x-y': output =  [  1, -1,  0]
+    elif input_opteration =='-y+z': output =  [  0, -1,  1]
+    elif input_opteration == 'z-y': output =  [  0, -1,  1]
+    elif input_opteration =='-z+x': output =  [  1,  0, -1]
+    elif input_opteration == 'x-z': output =  [  1,  0, -1]
+    elif input_opteration =='-z+y': output =  [  0,  1, -1]
+    elif input_opteration == 'y-z': output =  [  0,  1, -1]
+#     print(input_opteration, output)
+    return output
 ############################################################
 
 def from_operation_shift_to_matrix(input_opteration):
@@ -35,7 +51,7 @@ def command_line_arg():
     par.add_option("--fp", '--folderpath', 
             action='store', type="string", dest='folderpath',
             default='./',
-            help='location of the working-space, containing crystal structure file (Default: ./, ./CONTCAR)')
+            help='location of the working-space to generate doped crystal structure file (Default: ./)')
 
     par.add_option("-s", '--structure',  
             action='store', type="string", dest='structure',
@@ -65,12 +81,12 @@ def command_line_arg():
     
     par.add_option("--findsympath", 
             action='store', type="string", dest='findsympath',
-            default='Users/jihwan/Dropbox/my_portpolio/my_programs/Findsym',
+            default='/team/ptcad/jhlee/b_codework/py_sod_findsym/findsym/bin',
             help='location of findsym binary folder: Default - ~findsym/bin)')
 
     par.add_option("--sodpath", 
             action='store', type="string", dest='sodpath',
-            default='/Users/jihwan/Dropbox/my_portpolio/my_programs/SOD/sod-0.47/bin/sod_comb.sh',
+            default='/team/ptcad/jhlee/b_codework/py_sod_findsym/sod/src/sod-0.47/bin/sod_comb.sh',
             help='location of sod_comb.sh folder: Default - ~sod-0.47/bin/sod_comb.sh)')
     
     
@@ -98,7 +114,8 @@ if __name__ == '__main__':
     sub_Nele= opts.number
     repeat  = opts.repeat
 
-    structure = pmg.Structure.from_file('%s/%s' %(opts.folderpath,opts.structure))
+    structure = pmg.Structure.from_file('%s' %(opts.structure))
+#    structure = pmg.Structure.from_file('%s/%s' %(opts.folderpath,opts.structure))
     structure.to(filename = path3+"/POSCAR.cif")
 
     # findsym running
@@ -143,32 +160,48 @@ if __name__ == '__main__':
         if start:
             if 'loop_' in line:
                 start = False
+                
+                
+                
     print_out  = False
     f2 = open(path4+ "/SGO", 'w')            
     f2.write('%s' %head)
     if print_out:print('%s' %head,end='')
-    for temp in range(len(target)):
+#     print(target)
+    num=0
+    for target_part in target:
         output_m =[]
+        output_m1 =[]
         output_shift = []
-        for temp1 in range(3):
-            if len(target[temp][temp1].split('+') ) == 1:
-                output_m.append( from_operation_xyz_to_matrix(target[temp][temp1]) )
+        for i in range(3):
+            if '/' in target_part[i]: 
+                output_shift.append(target_part[i].split('+')[-1])
+                target_splitted = target_part[i].split('+')[:-1]
+            else:
                 output_shift.append('0')
-            if len(target[temp][temp1].split('+') ) == 2:
-                output_m.append( from_operation_xyz_to_matrix(target[temp][temp1].split('+')[0] ) )
-                output_shift.append( target[temp][temp1].split('+')[1])
-        f2.write('%1.0i\n' %(temp +1 ))
-        if print_out:print( '%1.0i' %(temp +1 ))
-        for temp1 in range(3):
-            for temp2 in range(3):
-                f2.write("%4.1i" %output_m[temp1][temp2])#,end='')
-                if print_out:print("%4.1i" %output_m[temp1][temp2],end='')
-            f2.write(  "%6.1f\n" %( from_operation_shift_to_matrix(output_shift[temp1]) ))
-            if print_out:print(  "%6.1f" %( from_operation_shift_to_matrix(output_shift[temp1]) ))
+                target_splitted=[]        
+                target_splitted.append(target_part[i])
+
+            if len(target_splitted) == 1 : 
+                output_m.append( from_operation_xyz_to_matrix(target_splitted[0]) )
+            else:
+                target_splitted = '%s+%s' %(target_splitted[0], target_splitted[1])
+                output_m.append( from_operation_xyz_to_matrix(target_splitted))
+
+        f2.write('%1.0i\n' %(num +1 ))
+        if print_out:print( '%1.0i' %(num +1 ))
+        for j in range(3):
+            for num2 in range(3):
+                f2.write("%4.1i" %output_m[j][num2])#,end='')
+                if print_out:print("%4.1i" %output_m[j][num2],end='')
+            f2.write(  "%10.5f\n" %( from_operation_shift_to_matrix(output_shift[j]) ))
+            if print_out:print(  "%10.5f" %( from_operation_shift_to_matrix(output_shift[j]) ))
+        num = num+1
     f2.write('0\n')
     if print_out:print(0)
 
-    f2.close()
+    f2.close()        
+
 
 
     f3 = open('%s/INSOD'%path4, 'w')
