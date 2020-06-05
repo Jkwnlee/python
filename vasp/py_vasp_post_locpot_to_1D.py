@@ -18,7 +18,9 @@ import matplotlib.pyplot as plt
 from optparse import OptionParser
 
 ############################################################
-__version__ = "1.6"
+__version__ = "1.7"
+# 1.7
+# WF without Graph Plot
 # 1.4
 # SKIP WHEN SAME OUTFILE IS THERE
 # Update for target information
@@ -167,12 +169,12 @@ def multi_plot_1D_plot(opts):
     fig = plt.figure()
     ax  = plt.subplot(111)
     clr = mpl.cm.get_cmap('jet', len(opts.multi))
-    print 'chosen files for multi-locpot plot: \n', opts.multi
+    print '[CODE] Chosen files for multi-locpot plot: \n', opts.multi
+    print '[CODE] | %20.15s | %10.8s | %20.15s | %s ' %('Vaccum-Level', 'E-Fermi', 'WF (eV)', 'filename ')
     j = 0
-    evac = 9999
     for t in opts.multi: 
-        print t
         f = open(t,'r')
+        evac = 9999
         x=[]; y=[]; i = 1
         for a in f:
             if i == 1: 
@@ -184,11 +186,13 @@ def multi_plot_1D_plot(opts):
                 y.append(float(a.split()[1]))
                 if float(a.split()[0])  > opts.yyy and evac == 9999: 
                     evac = a.split()[1]
-        ax.plot(x,y, label=ll, c=clr(j))
-        ax.plot([min(x), max(x)], [ef,ef], '--', label='ef'+ll, c=clr(j))
-        print t, evac, ef, float(ef)-float(evac)
+        ax.plot(x,y, label=t, c=clr(j))
+        ax.plot([min(x), max(x)], [ef,ef], '--', label='$E_{\\rm f}$ (%s)'%t, c=clr(j))
+        print '[CODE] | %20.15s | %10.8s | %20.15s | %s ' %(evac, ef, float(ef)-float(evac), t)
+#        print t, evac, ef, float(ef)-float(evac)
         j += 1
-    plt.savefig(output_name+'.png')
+    print '[CODE] Vaccum level is defined when the position is %s Angstrom (if False is printed, please using --yyy)' %opts.yyy
+    plt.savefig(opts.outname+'.png')
     plt.yticks() 
     plt.legend()
     plt.show()
@@ -268,7 +272,27 @@ def main(opts):
             plot_1D_plot(opts.outname+'.txt',ax= ax0)
     else: 
         axx=''
-        print '''[CODE] Drawing: OFF   (If you want: use -f with/without -o or --outname)''' 
+        print '''[CODE] Drawing: OFF   (If you want: use -f with/without -o or --outname)'''
+        if opts.yyy:
+            f = open(opts.outname+'.txt','r')
+            x=[]; y=[]; i = 1; evac = 9999
+            for a in f:
+                if i == 1: 
+                    i = i + 1
+                    ll= a.split()[1]
+                    ef= float(a.split()[2])
+                else:
+                    x.append(float(a.split()[0]))
+                    y.append(float(a.split()[1]))
+                    if float(a.split()[0])  > opts.yyy and evac == 9999: 
+                        evac = a.split()[1]
+            print """
+            filename       = %s 
+            vaccume energy = %s
+            fermi energy   = %s
+            work-function  = %f
+            """ %(opts.outname+'.txt', evac, ef, float(evac)-float(ef))
+
 
    #Ef = read_fermi(opts)
 
@@ -397,7 +421,10 @@ def command_line_arg():
     par.add_option("-M", '--multi',
             action='append', type="string", dest='multi',
             default=[],
-            help='Multi-Plotting graphs')
+            help='''
+Multi-Plotting graphs using 1D txt file (output of this code for each system)
+1. Generate output file for each cases
+2. codes -M target1_path -M target2_path -M target3_path ...''')
     
     par.add_option("--yyy",
             action='store', type="float", dest='yyy',
