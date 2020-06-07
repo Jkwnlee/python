@@ -8,13 +8,19 @@ from optparse import OptionParser
 #1. Read
 import sys
 ############################################################
-__version__ = "1.1"
+__version__ = "1.2"
+# Make option: path of vasp.dos
 ############################################################
 
 def command_line_arg():
     usage = "usage: %prog [options] arg1 arg2"  
     par = OptionParser(usage=usage, version= __version__)
 
+    par.add_option("--path", '--vasp_dos', 
+            action='store', type="string", dest='vasp_dos',
+            default='/team/ptcad/jhlee/b_codework/py_vasp_post_process/py_vasp.dos.py',
+            help='location of the POSCAR')
+    
     par.add_option("-i", '--input', 
             action='store', type="string", dest='poscar',
             default='./POSCAR',
@@ -164,7 +170,7 @@ def temp(opts):
             if temp == 1: 
                 fermi = line;  temp =+ 1
             else: pass
-    out.write( "python /team/ptcad/jhlee/b_codework/py_vasp_post_process/py_vasp.dos.py \\\n" )
+    out.write( "python %s \\\n" %opts.vasp_dos)
     out.write( " -y 0 %10.3f -z %8.5s --notot -q -s %i %i --fill -x %i %i \\"\
         %( (unitcell[2][2] * opts.shift +2)/opts.dist ,\
            fermi, \
