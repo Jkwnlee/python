@@ -1,5 +1,4 @@
 
-
 class OUTCAR():
     outlist = []
     SysName =''
@@ -71,14 +70,17 @@ class OUTCAR():
     
     def get_spin(self):
         return [ int(x.split()[2]) for x in self.outcartexts if "ISPIN  =" in x][-1]
-    
+
+    def get_1sCoreLevel(self):
+        return [ x.split()[2] for x in self.outcartexts if "  1s  " in x]
+       
     def get_LineNr(self):
         if 'k-point     1 :' in self.OutcarText: # VASP has switched Output format between 5.2 and 5.3,
             TargetText='k-point     1 :'	# this should now work in both (all?) cases
         else:
             TargetText="k-point   1"
         return [ i for i, x in enumerate(self.outcartexts) if TargetText in x]
-    
+   
     def get_NKPTS(self):
         outlist = [ x.split() for x in self.outcartexts if "NKPTS =" in x][-1]
         return int(outlist[14]), int(outlist[3])
