@@ -1,4 +1,4 @@
-#!/sw/util/opt/anaconda3/bin/python 
+#!/bin/python 
 ##/usr/bin/env python
 ##
 # coding: utf-8
