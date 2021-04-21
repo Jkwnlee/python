@@ -6,14 +6,7 @@ import sys
 import JH_lib as jh
 from optparse import OptionParser
 ############################################################
-__version__ = "1.1"
-# 1.1
-# Using Revised POTCAR LIST / Edit Default Path
-# Dict for Compound, EnmaxList, ValencyList, AtomicMassList
-# Print or not
-# 1.0
-# Making POTCAR LIST 
-# Read POSCAR and Make POTCAR
+__version__ = "1.0"
 ############################################################
 
 def command_line_arg():
@@ -41,7 +34,7 @@ def command_line_arg():
 
     par.add_option("--pp", '--potcarpath', 
             action='store', type="string", dest='potcarpath',
-            default='/team/Process_TCAD/JHLee/c_programs/vasp/POTCAR/PAW_PBE',
+            default='/home/jihwan/src/VASP/lib/POTCAR/PAW_PBE',
             help='specify the path of VASP POTCAR (Default - GGA-PBE)')
  
     par.add_option("-p", '--printout', 
