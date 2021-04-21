@@ -10,7 +10,7 @@ __version__ = "1.0"
 ############################################################
 
 def command_line_arg():
-    potcar_path='/team/Process_TCAD/JHLee/c_programs/vasp/POTCAR/PAW_PBE/'
+    potcar_path='/home/jihwan/src/VASP/lib/POTCAR/PAW_PBE'
     usage = """
 [CODE] READ POSCAR and make new POTCAR 
    usage: %prog [options] arg1 arg2"""
