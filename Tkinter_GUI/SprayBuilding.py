@@ -80,7 +80,7 @@ def add_atom_in_box(totatom,cellpar, Box,InsertAtomDF,OutputPath, unitcell):
 
 def build_SprayinBox( OutputPath='./outPOSCAR.vasp', 
                            AtomDensity = 2.65,  N_Atoms = [1 ,2] , AtomName = ['Si', 'O'] , MaxAtom = 200,
-                           potdir = '/team/Process_TCAD/JHLee/c_programs/vasp/POTCAR/PAW_PBE'):
+                           potdir = '/vasp/POTCAR/PAW_PBE'):
     ##########################################
     # Preallocate & grep MASS/Radious from POTCAR
     ##########################################
