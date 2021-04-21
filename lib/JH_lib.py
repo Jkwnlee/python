@@ -294,8 +294,8 @@ def component_from_positions(insert_position):
 
 
     new_compound = [componets , num_componets]
-    print "[CODE] The atomic postions are sorted by alphabet, Please revise your POTCAR"
-    print new_compound
+    print("[CODE] The atomic postions are sorted by alphabet, Please revise your POTCAR")
+    print(new_compound)
     return new_compound,insert_position
     
 
@@ -309,18 +309,18 @@ def judge_pri_conv(filename, system):
     ## Condition2: nit
     unitcell, compound, position=r_cryst_vasp('CONTCAR')
     if len(compound[1]) == 1:
-        # print "this cell include only one kind of atom"
+        # print("this cell include only one kind of atom")
         if compound[1][0] == '1':
-            # print "this cell include only one of atom"
+            # print("this cell include only one of atom")
             True
     else:
-        print "this cell include only more than one kind of atoms", compound[1]
+        print("this cell include only more than one kind of atoms", compound[1])
         pass
     if system == 'fcc':
         material_name=compound[0][0]
         latcon=unitcell[0][0]
         if float(latcon) == 0.:
-            # print "the unit cell is not conventional"
+            # print("the unit cell is not conventional")
             latcon=float(unitcell[0][1]) * 2
         else:
             pass
@@ -359,7 +359,7 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
                     [ 0.,tempy*1.1, 0.], \
                     [ 0., 0.,tempz*1.1]]
                     
-#    print len(position[0]),position[0]
+#    print(len(position[0]),position[0])
     if len(position[0]) == 7:
         if position[0][6] == 'T' or position[0][6] == 'F': Selective = True
 
@@ -371,7 +371,7 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
         if len(xyz) == 3:
             f.write(' %22.16f%22.16f%22.16f \n' % (float(xyz[0]), float(xyz[1]), float(xyz[2]))) 
         else: 
-            print " WARNING the xyz is not proper 'unitcell' SHOULD CONTAIN ONLY 3 NUMBERS"
+            print(" WARNING the xyz is not proper 'unitcell' SHOULD CONTAIN ONLY 3 NUMBERS")
             break
 
     for temp in range(len(compound)):
@@ -397,8 +397,8 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
             else:
                 f.write(' %22.16f%22.16f%22.16f \n' % (float(xyz[0]), float(xyz[1]), float(xyz[2]))) 
         else: 
-            print " WARNING the iserted position is not proper. IT SHOULD CONTAIN ONLY 3 NUMBERS"
-            print xyz
+            print(" WARNING the iserted position is not proper. IT SHOULD CONTAIN ONLY 3 NUMBERS")
+            print(xyz)
             break
 
 
@@ -444,7 +444,7 @@ def w_lammps_str(compound, position, filename = None, unitcell = None, Selective
         if len(xyz) == 3:
             f.write(' %22.16f%22.16f%22.16f \n' % (float(xyz[0]), float(xyz[1]), float(xyz[2]))) 
         else: 
-            print " WARNING the xyz is not proper IT SHOULD CONTAIN ONLY 3 NUMBERS"
+            print(" WARNING the xyz is not proper IT SHOULD CONTAIN ONLY 3 NUMBERS")
             break
 
     for temp in range(len(compound)):
@@ -470,7 +470,7 @@ def w_lammps_str(compound, position, filename = None, unitcell = None, Selective
             else:
                 f.write(' %22.16f%22.16f%22.16f \n' % (float(xyz[0]), float(xyz[1]), float(xyz[2]))) 
         else: 
-            print " WARNING the xyz is not proper IT SHOULD CONTAIN ONLY 3 NUMBERS"
+            print(" WARNING the xyz is not proper IT SHOULD CONTAIN ONLY 3 NUMBERS")
             break
 
 
@@ -688,7 +688,7 @@ def poscar_fcc_331_slab_primi(metal_kind, lat_con, vaccume,num_atom):
 def add_adsorbate(slab_position, slab_unitcell, adsorbate_position, output_name):
     new_position = slab_position + adsorbate_position
     new_compound,new_position = component_from_positions(new_position)
-    # print new_position, new_compound
+    # print(new_position, new_compound)
     w_poscar(new_position, compound = new_compound, filename = output_name, unitcell = slab_unitcell, Selective = True)
 
 
@@ -696,15 +696,15 @@ def add_adsorbate(slab_position, slab_unitcell, adsorbate_position, output_name)
 
 
 def print_error(True,a=False):
-    print """
+    print("""
  _____ ____  ____   ___  ____
 | ____|  _ \|  _ \ / _ \|  _ \\
 |  _| | |_) | |_) | | | | |_) |
 | |___|  _ <|  _ <| |_| |  _ <
 |_____|_| \_\_| \_\\\___/|_| \_\\
-"""
+""")
     if a != False:
-        print "Error Message From the function of ", a
+        print("Error Message From the function of ", a)
 
 
 ## ------------------------------------------------------------------------------
@@ -725,8 +725,8 @@ def normal_vector(array_for_three_point):
         vec1.append(point0[a] - point1[a])
         vec2.append(point0[a] - point2[a])
         center_of_points.append( (point0[a]+ point1[a] + point2[a]) / 3. )
-    # print vec1
-    # print vec2
+    # print(vec1)
+    # print(vec2)
     temp= []
     if cross_product(vec1, vec2)[2] < 0:
         temp = cross_product(vec2, vec1)
@@ -826,7 +826,7 @@ def rotate_mlc(input_data, angle, R_axis, output_name=False):
         in_position = input_data
         input_name = 'None'
     else:
-        print print_error(True, 'rotate_mlc')
+        print(print_error(True, 'rotate_mlc'))
 
     x=0; y=0; z=0; i = 0
     for a in in_position:
@@ -1025,7 +1025,7 @@ def distance_atoms(a1, a2):
         return (  (a1[0]-a2[0])**2  +  (a1[1]-a2[1])**2 + (a1[2]-a2[2])**2 ) ** 0.5
     else:
         print_error(True, 'distance_atoms')
-        print a1, a2
+        print(a1, a2)
 
 
 
