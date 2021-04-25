@@ -10,6 +10,14 @@ import os
 import math
 import sys
 import time
+import numpy as np
+import pandas as pd
+############################################################
+__version__ = "3.0"
+#Tuning for python3
+#POSITION to DataFrame
+############################################################
+
 ## ------------------------------------------------------------------------------
 """
 LIST-A [FOR STRUCTURES]
@@ -87,7 +95,7 @@ LIST-A [FOR STRUCTURES]
 """
 ## ------------------------------------------------------------------------------
 
-def r_cryst_vasp(filename):
+def r_cryst_vasp(filename='POSCAR', printout=False):
     def _judge_coord(i,r):
         judge_ = 0.
         len_   = 0.
@@ -97,57 +105,90 @@ def r_cryst_vasp(filename):
         judge_ =  judge_ / (len_**0.5)
         if judge_ > 0 and judge_ < 1: return True
         else: return False
+
     """
     Filename: VASP, POSCAR TYPE
     Function: Read POSCAR type 
     """
-    poscar=[]; uc=[]; comp=[]; posi=[];scales=[];num_atoms=0
     with open(filename, 'r') as f:
-        i = 1; j = 1; k =0; Selective=False; kn = 0
+        poscar=[]; uc=[]; comp=[]; posi=[];scales=[]
+        num_atoms=0; scale_num = 1
+        i = 1;  j = 1;  k =0
+        Selective=False; kn = 0
+        Check_Selective = True
         for l in f:
+        #         print(i,l, end='')
             if l == None: break
-            if   i > 2 and i < 6: uc.append([float(l_i) for l_i in l.split()])
+
+            if i == 2 : scale_num = float(l)
+            elif i > 2 and i < 6: uc.append([float(l_i)*scale_num for l_i in l.split()])
             elif i > 5 and i < 8: comp.append(l.split())
-            elif i == 8 :
-                if j == 1 :
+            elif i == 8 : 
+                #After Collecting Componenets, Count the total number of atoms
+                if num_atoms == 0:  
+                    for temp in comp[1]: 
+                        num_atoms=num_atoms+int(temp)
+#                    print(num_atoms)
+
+                ## Judge the input have Selective Dynamics or Not
+                if Check_Selective:
                     if l.split()[0][0] == 'S':
                         Selective= True; i = i - 1
-                    j = 2
-                if j == 2:
+                Check_Selective = False # Pass
+                
+                if Check_Selective == False:
+                # After Checking Selective Dynamics, 
                     if   l.split()[0][0] == 'C': scales=[[1.,0,0],[0,1.,0],[0,0,1.]]
-                    elif l.split()[0][0] == 'D': scales=uc
-                if num_atoms == 0:
-                    for temp in comp[1]: num_atoms=num_atoms+int(temp)
-            elif i > 8 :
-                if i <= 9 + num_atoms:
-                    te=[]
-                    coo = [float(l_i) for l_i in l.split()]
-                    for svec_num2 in range(3):
-                        scaled_coo = 0.0
-                        for svec_num1 in range(3):  
-                            scaled_coo = scaled_coo +  scales[svec_num1][svec_num2] *coo[svec_num1]
-                        te.append(scaled_coo)
-                    [x, y, z] = te
-                    if k <= int(comp[1][kn]):
-                        if Selective: posi.append([comp[0][kn], x, y, z, l.split()[3], l.split()[4], l.split()[5]])
-                        else:         posi.append([comp[0][kn], x, y, z])
-                    k= k+1
-                    if k == int(comp[1][kn]):
-                        kn = kn + 1
-                        k = 0
+                    elif l.split()[0][0] == 'D' or l.split()[0][0] == 'd': scales=uc
+
+            # Finish reading Unitcell, Composition, Dynamic Conditions
+            # Start reading atomic position 
+            elif i > 8 and i <= 8 + num_atoms:
+                te=[]
+                coo = [float(l.split()[l_i]) for l_i in range(3)]
+                for svec_num2 in range(3):
+                    scaled_coo = 0.0
+                    for svec_num1 in range(3):
+                    #        print(scales, svec_num1,svec_num2)
+                        scaled_coo = scaled_coo +  scales[svec_num1][svec_num2] *coo[svec_num1]
+                    te.append(scaled_coo)
+                [x, y, z] = te
+                ## k = k-th atom , kn = Criteria for Composition
+                if int(comp[1][kn]) == 0:
+                    # if there is number of atom  ==  0, skip it [bug-fix 206002]
+                    kn = kn + 1
+                    k = 0 # Initialize the K (reset total number of k-th element in comp[0])
+
+                if k <= int(comp[1][kn]):
+                    if Selective: posi.append([comp[0][kn], x, y, z, l.split()[3], l.split()[4], l.split()[5]])
+                    else:         posi.append([comp[0][kn], x, y, z])
+                k= k+1
+
+                if k == int(comp[1][kn]):
+                    kn = kn + 1
+                    k = 0 # Initialize the K (reset total number of k-th element in comp[0])
+            
+            ##After reading whole informations
             if i == 8 + num_atoms:
-            #judge the position (r) is in the unitcell (a,b,c) : 0<dot(i,r)/|i|< 1
+                #judge the position (r) is in the unitcell (a,b,c) : 0<dot(i,r)/|i|< 1
                 for a in posi:
                     for x in range(3):
                         if _judge_coord(uc[x], a): pass
                         else: #move with consideration of periodic boundary condition
                             a = a + uc[x]
+                if Selective:df = pd.DataFrame( posi, columns=['element', 'x', 'y', 'z','rx','ry','rz'])
+                else: df = pd.DataFrame( posi, columns=['element', 'x', 'y', 'z'])
+                
+                df = df.sort_values(by=['element','z'])
+                if printout:
+                    print("[CODE] The atomic postions are sorted by alphabet, Please revise your POTCAR")
+                posi = df.values.tolist()
+#                for tetete in posi: print(tetete)
                 return uc, comp, posi
+            elif i > 8 + num_atoms: break
             else:  i = i + 1
 
 ## ------------------------------------------------------------------------------
-
-
 def pst_poscar_move(position, mv_x, mv_y,mv_z):
     new_position = position
     for temp in range(len(position)):
@@ -271,32 +312,44 @@ def poscar_head(num_atom,num_rlx):
 ## ------------------------------------------------------------------------------
 
 
-def component_from_positions(insert_position):
+def component_from_positions(insert_position, printout=False):
+    if len(insert_position[0]) > 4:Selective = True
+    else: Selective = False
+    
+    if Selective:
+    	df = pd.DataFrame( insert_position, columns=['element', 'x', 'y', 'z','rx','ry','rz'])
+    else: 
+    	df = pd.DataFrame( insert_position, columns=['element', 'x', 'y', 'z'])
+    df = df.sort_values(by='element')
     new_compound=[]
-    componets = []
-    num_componets = []
-    i = 0; k= 0
-    insert_position = sorted(insert_position)
-    for temp1 in range(len(insert_position)):
-        if temp1 == 0:
-            componets.append(insert_position[temp1][0])
-            num_componets.append(1)
-        else:
-            if insert_position[temp1][0] == temp:
-                if componets[i] == insert_position[temp1][0]:
-                    num_componets[i] = num_componets[i] + 1
-            else:
-                i = i + 1
-                componets.append(insert_position[temp1][0])
-                num_componets.append(1)
-
-        temp = insert_position[temp1][0]
+    new_compound.append(list(df.groupby(by='element').agg('count').index))
+    new_compound.append(df.groupby(by='element').agg('count').loc[:,'x'].tolist()) 
 
 
-    new_compound = [componets , num_componets]
-    print("[CODE] The atomic postions are sorted by alphabet, Please revise your POTCAR")
-    print(new_compound)
-    return new_compound,insert_position
+#    new_compound=[]
+#    componets = []
+#    num_componets = []
+#    i = 0; k= 0
+#    for temp1 in range(len(insert_position)):
+#        if temp1 == 0:
+#            componets.append(insert_position[temp1][0])
+#            num_componets.append(1)
+#        else:
+#            if insert_position[temp1][0] == temp:
+#                if componets[i] == insert_position[temp1][0]:
+#                    num_componets[i] = num_componets[i] + 1
+#            else:
+#                i = i + 1
+#                componets.append(insert_position[temp1][0])
+#                num_componets.append(1)
+#
+#        temp = insert_position[temp1][0]
+#
+#    new_compound = [componets , num_componets]
+    if printout:
+        print("[CODE] The atomic postions are sorted by alphabet, Please revise your POTCAR")
+#    print new_compound
+    return new_compound,df.values.tolist()
     
 
 ## ------------------------------------------------------------------------------
@@ -330,7 +383,7 @@ def judge_pri_conv(filename, system):
 ## ------------------------------------------------------------------------------
 
 
-def w_poscar(position, compound = None, filename = None, unitcell = None, Selective = False):
+def w_poscar(position, compound = None, filename = None, unitcell = None, Selective = False, printout=False):
     """
     4.1 Write a poscar file type
     Officially, it needs 2 parameters. "compound and position"
@@ -342,10 +395,16 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
               ( ex. [[Cu, 0, 0, 0, F, F, F]]  )
     """
     if compound == None:
+        if printout:
+            print('[CODE] There is no initial compound data:%s' %compound)
+            print('[CODE] Check the output once again')
         compound,position = component_from_positions(position)
-
+    compound,position = component_from_positions(position)
+   # for i in position: print(i)
+    
     if filename == None:
         filename = 'py_POSCAR.vasp'
+    
 
     if unitcell == None:
         tempx = 10.
@@ -359,7 +418,7 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
                     [ 0.,tempy*1.1, 0.], \
                     [ 0., 0.,tempz*1.1]]
                     
-#    print(len(position[0]),position[0])
+#    print len(position[0]),position[0]
     if len(position[0]) == 7:
         if position[0][6] == 'T' or position[0][6] == 'F': Selective = True
 
@@ -376,14 +435,14 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
 
     for temp in range(len(compound)):
         for temp2 in range(len(compound[temp])):
-            f.write(' %4.3s' %compound[temp][temp2])
+            f.write('  %s' %compound[temp][temp2])
+#            print 'test',compound[temp][temp2]
         f.write('\n')
         
     if Selective:
         f.write('Selective Dynamics\n')
         
-    f.write('C\n')
-
+    f.write('Cartesian\n')
     for temp in range(len(position)):
         xyz=position[temp][1:4]
         if len(xyz) == 3:
@@ -398,7 +457,7 @@ def w_poscar(position, compound = None, filename = None, unitcell = None, Select
                 f.write(' %22.16f%22.16f%22.16f \n' % (float(xyz[0]), float(xyz[1]), float(xyz[2]))) 
         else: 
             print(" WARNING the iserted position is not proper. IT SHOULD CONTAIN ONLY 3 NUMBERS")
-            print(xyz)
+            print( xyz)
             break
 
 
@@ -688,23 +747,24 @@ def poscar_fcc_331_slab_primi(metal_kind, lat_con, vaccume,num_atom):
 def add_adsorbate(slab_position, slab_unitcell, adsorbate_position, output_name):
     new_position = slab_position + adsorbate_position
     new_compound,new_position = component_from_positions(new_position)
-    # print(new_position, new_compound)
+    # print new_position, new_compound
     w_poscar(new_position, compound = new_compound, filename = output_name, unitcell = slab_unitcell, Selective = True)
 
 
 ## ------------------------------------------------------------------------------
 
 
-def print_error(True,a=False):
-    print("""
- _____ ____  ____   ___  ____
-| ____|  _ \|  _ \ / _ \|  _ \\
-|  _| | |_) | |_) | | | | |_) |
-| |___|  _ <|  _ <| |_| |  _ <
-|_____|_| \_\_| \_\\\___/|_| \_\\
-""")
-    if a != False:
-        print("Error Message From the function of ", a)
+def print_error(judge = True, message_from=False):
+    if judge:
+        print("""
+     _____ ____  ____   ___  ____
+    | ____|  _ \|  _ \ / _ \|  _ \\
+    |  _| | |_) | |_) | | | | |_) |
+    | |___|  _ <|  _ <| |_| |  _ <
+    |_____|_| \_\_| \_\\\___/|_| \_\\
+    """)
+    if message_from != False:
+        print("Error Message From the function of ", message_from)
 
 
 ## ------------------------------------------------------------------------------
@@ -716,7 +776,7 @@ def normal_vector(array_for_three_point):
     """
 
     if len(array_for_three_point) != 3:
-        return print_error(True, 'normal_vector')
+        return print_error(judge = True, message_from='normal_vector')
     point0 = array_for_three_point[0]; point1 = array_for_three_point[1];point2 = array_for_three_point[2]
     vec1=[]
     vec2=[]
@@ -725,8 +785,8 @@ def normal_vector(array_for_three_point):
         vec1.append(point0[a] - point1[a])
         vec2.append(point0[a] - point2[a])
         center_of_points.append( (point0[a]+ point1[a] + point2[a]) / 3. )
-    # print(vec1)
-    # print(vec2)
+    # print vec1
+    # print vec2
     temp= []
     if cross_product(vec1, vec2)[2] < 0:
         temp = cross_product(vec2, vec1)
@@ -749,7 +809,7 @@ def cross_product(vec1, vec2):
     Calculate the corss product from vec1 to vec2
     """
     if len(vec1) != 3 or len(vec2) != 3:
-        return print_error(True, 'cross_product')
+        return print_error(judge = True, message_from='cross_product')
     else:
         return [vec1[1] * vec2[2]  - vec1[2] * vec2[1], 
                 vec1[2] * vec2[0]  - vec1[0] * vec2[2],
@@ -764,7 +824,7 @@ def shift_ads_w_normal_vec(inital_point,distance, vec):
     Shift the initial point with following vector
     """
     if len(inital_point) !=3 or len(vec) !=3:
-        return print_error(True, 'shift_ads_w_normal_vec')
+        return print_error(judge = True, message_from='shift_ads_w_normal_vec')
         
     len_vec = math.sqrt(vec[0]**2 + vec[1]**2 + vec[2]**2)
     temp_vec = []; next_position=[]
@@ -796,7 +856,7 @@ def Rot(theta,r_axis):
     elif len(r_axis) == 3:
         pass
     else:
-        return print_error(True)
+        return print_error(judge = True)
     
     return [[co+(v[0]**2)*(1-co),v[0]*v[1]*(1-co)-v[2]*si,v[0]*v[2]*(1-co)+v[1]*si], 
             [v[1]*v[0]*(1-co)+v[2]*si,co+(v[1]**2)*(1-co),v[1]*v[2]*(1-co)-v[0]*si], 
@@ -826,7 +886,7 @@ def rotate_mlc(input_data, angle, R_axis, output_name=False):
         in_position = input_data
         input_name = 'None'
     else:
-        print(print_error(True, 'rotate_mlc'))
+        print_error(judge = True, message_from='rotate_mlc')
 
     x=0; y=0; z=0; i = 0
     for a in in_position:
@@ -1024,12 +1084,116 @@ def distance_atoms(a1, a2):
         pass
         return (  (a1[0]-a2[0])**2  +  (a1[1]-a2[1])**2 + (a1[2]-a2[2])**2 ) ** 0.5
     else:
-        print_error(True, 'distance_atoms')
-        print(a1, a2)
+        print_error(judge = True, message_from= 'distance_atoms')
+        print( a1, a2)
 
+## ------------------------------------------------------------------------------
+
+def macroscopic_average(x,y,lp): 
+    import numpy as np
+    """
+    y   : potential_function(x)
+    lp  : length of phase to find the macroscopic average (target phase)
+    nog : number of grid - to define 
+    """
+    m_aver = np.zeros(shape=(len(y)))            
+    dx = max(x) / len(x)  # dx
+    period_points = int( lp / dx)               # unit of integration
+    # Period points must be even
+    if period_points % 2 != 0 or period_points == 0: 
+        period_points = period_points + 1
+    len_y= len(y)
+    for i in range(len_y):
+        start = i - int(period_points / 2)
+        end = i + int(period_points / 2)
+        if start < 0:
+            start = start + len_y
+            m_aver[i] = m_aver[i] + sum(y[0:end]) + sum(y[start:len_y])
+#            print("%10.9s %10.9s %10.9s %10.9s" %(x[start], x[end], str(period_points / 2), str(len(y))))
+            m_aver[i] = m_aver[i] / period_points
+        elif end >= len_y:
+            end = end - len_y
+            m_aver[i] = m_aver[i] + sum(y[start:len_y]) + sum(y[0:end])
+            m_aver[i] = m_aver[i] / period_points
+#            print("%10.9s %10.9s %10.9s %10.9s" %(x[start], x[end], str(period_points / 2), str(len(y))))
+        else:
+#            print("%10.9s %10.9s %10.9s %10.9s" %(x[start], x[end], str(period_points / 2), str(len(y))))
+            m_aver[i] = m_aver[i] + sum(y[start:end]) / period_points
+
+    macroscopic_average = np.average(m_aver)
+#    print("Average of the average = ", numpy.average(m_aver))
+    return macroscopic_average, m_aver
+
+
+
+
+
+# Test for Lamms
+# target = str(sys.argv[1])
+# sequence_of_compound = [['Zr', 'O', 'Y'],['+4','-2','+3']]
+# unitcell, compound, position = r_cryst_vasp(target)
+# w_lammps_str(compound, position, "structure.data", unitcell, sequence_of_compound)
+
+
+## Test for normal vector 
+# temp, center=normal_vector([[6.0598862556776316,0.0000000000000000,4.3528408899082995],[ 6.0042276279323659,2.5098483562000000,4.2973650164883086],[4.2408565966276779,1.2419402764485341,5.5002446586139300]])
+# shift_ads_w_normal_vec(center,1.09601,temp)
+
+
+
+# ## Test for build_slab
+# unitcell, compound, position=r_cryst_vasp('CONTCAR')
+# num_atom=13 ## will be no_layer
+# vaccume=18
+# num_fix_lay=5
+# output_name='cu331_13al.vasp'
+# metal_kind=compound[0][0]
+# lat_con=float(judge_pri_conv('CONTCAR', 'fcc'))
+# ## build_slab(system, metal_kind, lat_con, index, output_name, vaccume,num_atom,num_fix_lay, symmetric)
+# build_slab('fcc', compound[0][0], lat_con, '331', output_name, vaccume, num_atom, num_fix_lay, True)
+
+# index == '100'
+# index == '110'
+# index == '111'
+# index == '210'
+# index == '211'
+# index == '311'
+# index == '331'
+
+# ## TEST FOR mlc_ch4
+# position,compound = mlc_ch4([0,0,0], 1.09601)
+# print position
+# w_poscar(position)
+
+
+# ## TEST for pst_cell_expansion
+# unitcell, compound, position=r_cryst_vasp('cu_111_4al.vasp')
+# unitcell, compound, position=pst_cell_expansion(unitcell, position,[3,3,1])
+# w_poscar(compound, position, 'test33.vasp', unitcell)
+
+## TEST for ads
+# unitcell, compound, position = r_cryst_vasp('cu_111_4al.vasp')
+# slab_unitcell, compound, slab_position = pst_cell_expansion(unitcell, position,[3,3,1])
+# # unitcell, compound, position = r_cryst_vasp('cu_311_7al.vasp')
+# # slab_unitcell, compound, slab_position = pst_cell_expansion(unitcell, position,[2,3,1])
+# # adsorbate_position, compound = mlc_ch4([6.1413235439999996,    1.8516787189999999, 10.3293388149376888], 1.09601)
+# adsorbate_position, compound = mlc_ch3([1.2549236450848389/2. ,2.1735915129064742/2. , 8.2422636020000006], 1.09601)
+
+# add_adsorbate(slab_position, slab_unitcell, adsorbate_position, 'cu111_b.vasp')
+
+# unitcell, compound, position = r_cryst_vasp('test33.vasp')
+# slab_unitcell, compound, slab_position = pst_cell_expansion(unitcell, position,[1,1,1])
+# adsorbate_position, compound = mlc_ch4([0.0000000000000000,0.0000000000000000,8.2074228061374646], 1.09601)
+
+# add_adsorbate(slab_position, slab_unitcell, adsorbate_position, 'cu111_b.vasp')
 
 
 ## ------------------------------------------------------------------------------
+## Example for rotation_mlc
+# for angle in range(10):
+#     temp = 180./float(angle+1)
+#     rotate_mlc('grycerol.vasp',  temp, 'z')
+
 
 
 # ###########################################################################
@@ -1042,3 +1206,4 @@ def distance_atoms(a1, a2):
 # ####                                                                   ####
 # ###########################################################################
 # ###########################################################################
+
