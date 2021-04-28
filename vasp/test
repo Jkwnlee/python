@@ -1,0 +1,249 @@
+## 0. Starting Para.--------- ##
+################################
+# 0.0 General Inputs/System    #
+################################
+  SYSTEM = geo-opt-slow        #Title
+  ISTART = 0                   # 0: from INIWAV, 1,2,3: Continuation Job
+# INIWAV = 1                   # 0: Jellium Orbitals, 1: Random Numbers
+  ICHARG = 2                   # 0: from WAVECAR, 1: from CHGCAR, 
+#                              # 2: Atomic Charge Density
+################################
+# 0.1 Parallel calculation     #
+################################
+  KPAR = 1                     # Number of k-points that are to be treated in parallel
+# NPAR = 1                     # Number of bands that are treated in parallel
+  NCORE =4                    # Number of compute cores that work on an individual orbital
+  NSIM = 4                     # Number of bands that are optimized simultaneously 
+#                                by the RMM-DIIS algorithm
+  LPLANE = .TRUE.              # .TRUE.: Switche on the plane-wise data distribution in real space
+# LSCALU = .FALSE.             # .TRUE.: LU decomposition in orthormalization 
+#                              #         of the wave functions in parallel, using scaLAPACK
+# LSCALAPACK = .FALSE.         # .TRUE.: scaLAPACK for orthonormalization 
+#                              #         of wavefunctions and subspace diagonalizations
+# End Line for 0 ------------- #
+
+## 1. Electronic Structure --- #
+################################
+# 1.0 Relaxation Condition     #
+################################
+  ENCUT = 500                  # Cutoff Energy for Planewave Basis Set
+  PREC = Normal                # Precision Mode
+  NELMIN = 4                   # Minimum Number of Electronic SCF
+  NELM = 50                    # Maximum Number of Electronic SCF
+# NELMDL = -12                 # Number of non-SCF Steps
+  EDIFF = 1E-5                 # Energy Criteria for Electronic SCF
+  ALGO = Fast                  # Electronic Minimisation Algorithm
+# IALGO = 48                   # Algorithm for Orbitals Optimization
+  LREAL = .False.              # Projection Operators in Real-Space (Auto) 
+#                              #          or in Reciprocal-Space (.FALSE.)
+# NELECT = 100                 # Number of Valence Electrons
+# NBANDS = 72                  # Number of Bands in Calculation
+  ISMEAR = 0                   # How Partial Occupancies are set for Each Orbital
+  SIGMA = 0.05                 # Width of Smearing in eV
+  ISYM = 2                     # Sym (1,2,3), No-sym (-1,0)
+# SYMPREC = 1E-5               # Symmetry Precision
+# ADDGRID = .TRUE.             # .TRUE.: Additional Support Grid is used 
+#                              #         for Evaluation of Augmentation Charges
+# POTMASS = 1.0                # Atomic Mass of Each Atomic Species
+# ZVAL = 1.0                   # Valence electron of Each Atomic Species
+  KSPACING = 0.3               # Number of k-points if KPOINTS file is not present
+  KGAMMA = .TRUE.              # .TRUE.: Gamma-centered, .FALSE.: Shift Away from GAMMA 
+# RWIGS = 0.863 0.302 0.905    # Wigner-Seitz Radius for Each Atom Type
+# LELF = .FALSE.               # .TRUE.: Create ELFCAR (Electron Localization Function)
+# NGX = 30                     # Number of Grid Points in FFT-Grid along First Lattice Vector
+# NGY = 30                     # Number of Grid Points in FFT-Grid along Second Lattice Vector
+# NGZ = 30                     # Number of Grid Points in FFT-Grid along Third Lattice Vector
+# NGXF = 100                   # Number of Grid Points in "fine" FFT-Grid along First Lattice Vector
+# NGYF = 100                   # Number of Grid Points in "fine" FFT-Grid along Second Lattice Vector
+# NGZF = 100                   # Number of Grid Points in "fine" FFT-Grid along Third Lattice Vector
+################################
+# 1.1 Density Mixing           #
+################################
+# IMIX = 4                     # Type of Mixing
+# INIMIX = 1                   # Functional Form of Initial Mixing Matrix
+# AMIN = 0.1                   # Minimal Mixing Parameter 
+# AMIX = 0.1                   # Linear Mixing Parameter
+# AMIX_MAG = 1.6               # Linear Mixing Parameter for Magnetization Density
+# BMIX = 0.0001                # Cutoff Wave Vector for Kerker Mixing
+# BMIX_MAG = 1.0               # Cutoff Wave Vector for Kerker Mixing for Magnetization Density
+# MIXPRE = 1                   # Metric in Broyden Mixing
+# MAXMIX = 40                  # Maximum Number Steps Stored in Broyden Mixer
+################################
+# 1.2 Dipole Correction        #
+################################
+# LMONO = .TRUE.               # .TRUE.: Monopole-Monopole Corrections for Total Energy
+# LDIPOL = .FALSE.             # .TRUE.: Dipole Corrections to Potential and Forces
+# IDIPOL = 4                   # 1,2,3: first, second, third lattice vector, 4: all directions
+# DIPOL = 0.5 0.5 0.5          # Center of Cell (in direct, fractional coordinates)
+# EPSILON = 8.40               # Dielectric Constant of Medium
+# EFIELD = 0.0                 # Magnitude of the Applied Electric Field
+# ICORELEVEL = 1               # 0: not calculate, 1: Simple Calculation of Core Energy
+# End Line for 1 ------------- #
+
+## 2. Magnetism ------------- ##
+################################
+# 2.0 Basic                    #
+################################
+# ISPIN = 2                    # 1: non spin-polarization, 2: spin-polarization (collinear)
+# MAGMOM = 500*1.0             # Initial Magnetic Moment for Each Atom
+# NUPDOWN = -1                 # Difference between Number of Electrons in Up and Down Spin Components
+# I_CONSTRAINED_M = 1          # Constrained Local Moment Approach
+# LAMBDA = 0                   # Penalty Terms of Constrained Local Moment Approach
+# M_CONSTR = 1.0 1.0 1.0       # Local Magnetic Moment for Constrained Local Moments Approach
+################################
+# 2.1 Magnetism: Noncollinear  #
+################################
+# LNONCOLLINEAR = .FALSE.      # .TRUE.: Fully Non-Collinear Magnetic Calculations
+# LSORBIT = .FALSE.            # .TRUE.: Spin-Orbit Coupling
+# SAXIS = 0 0 1                # Quantisation Axis for Noncollinear Spins
+# End Line for 2 ------------- #
+
+## 3. Ionic Relaxation ------ ##
+################################
+# 3.0 Ionic Relaxation Condition
+################################
+  NSW = 10000                  # Maximum Number of Ionic Steps
+  ISIF = 3                     # Ionic Relaxation Condition about Stree Tensor and DOF
+  IBRION = 2                   # -1: no update, 0: MD, 1: RMM-DIIS,
+#                              #  2: CG, 3: Damped-MD, 5-8: Phonon Cal.
+  EDIFFG = -2.0E-2             # Force Criteria for Ionic Relaxation
+  POTIM = 0.5                  # Relaxation: Step Width Scaling, 
+#                              #     Phonon: Ionic Displacements, MD: Time Step
+# NFREE = 1                    # Relaxation: Number of Remembered Steps, 
+#                              #     Phonon: Number of Ionic Displacements
+################################ 
+# 3.1 Ab initio MD             # 
+################################ 
+# MDALGO = 2                   # MD Simulation Protocol
+# SMASS = 0                    # Velocity condition during ab initio MD
+# TEBEG = 1073                 # Start Temperature for ab-initio MD
+# TEEND = 1073                 # Final Temperature for ab-initio MD
+# PSTRESS = 0.0                # Target Pressure in NPT (kB)
+# NBLOCK = 1                   # After NBLOCK, ionic structure is written to XDATCAR
+# KBLOCK = 1                   # After KBLOCK*NBLOCK, pair correlation function 
+#                              #  and DOS are written to PCDAT and DOSCAR
+################################
+# 3.2 Nudged Elastic Band (NEB)#
+################################
+# IMAGES = 11                  # Number of NEB images between the fixed endpoints
+# SPRING = -5.0                # Spring constant, in eV/Ang^2 between the images
+# ICHAIN = 0                   # Indicates which method to run. NEB (ICHAIN=0) is the default
+# LCLIMB = .TRUE.              # Flag to turn on Climbing Image Algorithm
+# LNEBCELL = .TRUE.            # Flag to turn on SS-NEB. Used with ISIF=3 and IOPT=3.
+#                              # ** Must set IOPT = 3 or 7 when using LNEBCELL=.TRUE.
+# IOPT = 3                     # QM (Quick-Min) Force based optimizers 
+#                              #  (0: default, 1: LBFGS, 2: CG, 4: SD, 7: FIRE)
+# MAXMOVE = 0.2                # Maximum Allowed Step Size for Translation
+# TIMESTEP = 0.1               # Dynamical Time Step
+################################
+# 3.3 Static Dielectric Property (Static Dielectric Constant, Born Effective Charges)
+################################
+# LEPSILON = .TRUE.            # .TRUE.: With Density functional perturbation theory (DFPT),
+#                              #         calculate Static Dielectric Matrix, Piezoelectric Tensor,
+#                              #         Born Effective Charges (with IBRION > 4)
+# LRPA = .FALSE.               # .TRUE.: Hartree only, .FALSE.: Hatree + XC
+# CSHIFT = 0.1                 # Complex shift η in the Kramers-Kronig transformation
+################################ 
+# 3.4 Frequency Dependent Dielectric Property
+################################ 
+# LOPTICS = .TRUE.             # .TRUE.: Calculates Frequency Dependent Dielectric Matrix 
+#                                        (with IBRION > 4)
+# LNABLA = .FALSE              # .TRUE.: Transversal Expression for Frequency Dependent Dielectric Matrix
+################################
+# 3.5 Polarization: Berry Phases and Finite Electric Fields
+################################
+# LCALCPOL = .TRUE.            # .TRUE.: Switches on Berry Phase Calculations 
+#                              #         for Macroscopic Electronic Polarization
+# IGPAR = 3                    # Direction Condition in integration over reciprocal space unit cell 
+# NPPSTR = 6                   # Number of k-points in IGPAR direction
+# LCALCEPS = .TRUE.            # .TRUE.: Static Dielectric Matrix, Piezoelectric Tensor, 
+#                              #         Born Effective Charges from Finite Electric Field
+# EFIELD_PEAD = 0.0 0.0 0.1    # Homogeneous Electric Field in Electric Enthalpy Functional
+# LPEAD = .FALSE.              # .TRUE.: Derivative of Cell-periodic Part is calculated 
+#                              #         using finite differences
+# IPEAD = 4                    # Order of the finite difference or Derivative of Polarization 
+#                              # w.r.t. Orbitals
+# End Line for 2 ------------- #
+
+
+
+## OUTPUT ------------------- ##
+################################
+# 3.1 Output: General          #
+################################
+  NWRITE = 2                   # 0,1: Lond MD, 2: Default
+  LCHARG = .FALSE.             # .TRUE.: Charge-Densities are written to CHG and CHGCAR
+  LWAVE = .FALSE.              # .TRUE.: Wavefunctions are written to WAVECAR
+  LVTOT = .FALSE.              # .TRUE.: Total Local Potential written to LOCPOT
+  LVHAR = .FALSE.              # .TRUE.: Ionic + Hartree, .FALSE.:Ionic + Hartree + XC
+################################
+# Output: 1. Electronic Structure 
+################################
+# EMIN = -50                   # Lower Boundary of Energy Range for DOS
+# EMAX = 50                    # Upper Boundary of Energy Range for DOS
+# NEDOS = 4000                 # Number of Grid-Points of DOS
+  LORBIT = 11                  # Write Condition for PROCAR or PROOUT
+################################ 
+# Output: 2. Charge Density (CD)
+################################
+# LPARD = .TRUE.               # .TRUE.: Partial Charge Densities are evaluated
+# NBMOD = -2                   # Control Parameter (0: All bands, -1: Total CD,
+#                              #                   -2: Partial CD, -3: Partial CD)
+# EINT = -10 10                # Energy Range of Bands for Partial Charge Density
+# IBAND = 63 64 71 72          # Which bands are used for Partial Charge Density
+# KPUSE = 1                    # Specifies which k-points are used in PDOS
+# LSEPB = .TRUE.               # .TRUE.: Evergy Band Separately, .FALSE.: Merge for All Selected Bands
+# LSEPK = .TRUE.               # .TRUE.: Evergy k-points Separately, .FALSE.: Merge to Single File
+# LAECHG = .FALSE.             # All-Electron Charge Density
+# End Line for OUTPUT--------- #
+
+
+## xc-functional (func.) ---- ##
+################################ 
+# Generalized Gradient Approximation (GGA)
+################################ 
+# GGA = PE                     # Type of GGA
+# GGA_COMBAT = .FALSE.         # .FALSE.: Restores Full Lattice Symmetry 
+#                              #          for Gradient Corrected Functionals
+################################
+# Meta-GGA                     #
+################################
+# METAGGA = SCAN               # Meta-GGA Functionals (TPSS, RTPSS, M06L, MBJ, SCAN, MS0, MS1, MS2)
+# CMBJ = c                     # c parameter in Modified Becke-Johnson Meta-GGA potential
+# CMBJA = -0.012               # α parameter in Modified Becke-Johnson Meta-GGA potential
+# CMBJB = 1.023                # β parameter in Modified Becke-Johnson Meta-GGA potential
+# LMAXTAU = 6                  # Maximum l-quantum Number Included 
+#                              # in PAW One-Center Expansion of Kinetic Energy Density
+# LMIXTAU = .FALSE.            # Kinetic Energy Density through Density Mixer
+# LASPH = .TRUE.               # .TRUE.: Include Non-spherical Contributions 
+#                              #         related to Gradient of Density in PAW Spheres
+################################
+# Hybrid Functionals with Hartree-Fock(HF)
+################################
+# LHFCALC = .TRUE.             # .TRUE.: Hybrid Functional Calculations
+# HFSCREEN = 0.2               # 0.3: HSE03, 0.2: HSE06
+# AEXX = 0.25                  # Fraction of Exact Exchange in HF/DFT Hybrid Functional
+# AGGAX = 0.75                 # Fraction of Gradient Corrections to Exchange in HF/DFT Hybrid Func.
+# AGGAC = 1.0                  # Fraction of Gradient Corrections to Correlation in HF/DFT Hybrid Func.
+# ALDAC = 1.0                  # Fraction of LDA Correlation in Hartree-Fock/DFT Hybrid Func.
+# PRECFOCK = Normal            # FFT grids used in the exact exchange routines (HF and Hybrid Func.)
+# TIME = 0.4                   # Time Step for IALGO=5X and for Initial Phase of IALGO=4X
+# NKRED = 1                    # Uniform Reduction Factor for the q-point Grid 
+# LMODELHF = .FALSE.           # Dielectric-Dependent Hybrid Functionals with
+#                              # Full exchange in Short-range, and AEXX in Long-range
+################################
+# Van der Waals Correction (correlation part)
+################################
+# IVDW = 0                     # Type of vdW Methods
+################################
+# Hubbard Potential: LSDA+U    #
+################################
+# LDAU = .TRUE.                # .TRUE. Switches on the L(S)DA+U
+# LDAUTYPE = 2                 # Type of L(S)DA+U approach will be used
+# LDAUJ = 0.0                  # Strength of Effective on-site Exchange Interactions
+# LDAUU = 0.0                  # Strength of Effective on-site Coulomb Interactions
+# LDAUL = -1                   # l-quantum number for which On-site interaction is added
+# LMAXMIX = 4                  # For LSDA+U, 4: d-electrons, 6: f-elements
+# LDAUPRINT = 0                # Verbosity of L(S)DA+U Routines
+# End Line for xc-functional - #
+
