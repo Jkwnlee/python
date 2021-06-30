@@ -18,7 +18,8 @@ import matplotlib.pyplot as plt
 from optparse import OptionParser
 
 ############################################################
-__version__ = "1.7"
+__version__ = "1.8"
+# 1.8 Print option for python3
 # 1.7
 # WF without Graph Plot
 # 1.4
@@ -40,8 +41,8 @@ def read_potential_line(opts):
     npt = NGX * NGY * NGZ
     npp = NGX * NGY
     
-    print "[CODE] READING File, %20.20s , containing %10.i points  with %10.i points in a plane normal to set axis %s "\
-    %(opts.inputname, npt, npp, 'z')#opts.direction)
+    print("[CODE] READING File, %20.20s , containing %10.i points  with %10.i points in a plane normal to set axis %s "\
+    %(opts.inputname, npt, npp, 'z'))#opts.direction)
     with open(opts.inputname, 'r') as f:
         for line in f:
             if 'augmentation' in line: break
@@ -169,8 +170,8 @@ def multi_plot_1D_plot(opts):
     fig = plt.figure()
     ax  = plt.subplot(111)
     clr = mpl.cm.get_cmap('jet', len(opts.multi))
-    print '[CODE] Chosen files for multi-locpot plot: \n', opts.multi
-    print '[CODE] | %20.15s | %10.8s | %20.15s | %s ' %('Vaccum-Level', 'E-Fermi', 'WF (eV)', 'filename ')
+    print('[CODE] Chosen files for multi-locpot plot: \n', opts.multi)
+    print('[CODE] | %20.15s | %10.8s | %20.15s | %s ' %('Vaccum-Level', 'E-Fermi', 'WF (eV)', 'filename '))
     j = 0
     for t in opts.multi: 
         f = open(t,'r')
@@ -191,7 +192,7 @@ def multi_plot_1D_plot(opts):
         print '[CODE] | %20.15s | %10.8s | %20.15s | %s ' %(evac, ef, float(ef)-float(evac), t)
 #        print t, evac, ef, float(ef)-float(evac)
         j += 1
-    print '[CODE] Vaccum level is defined when the position is %s Angstrom (if False is printed, please using --yyy)' %opts.yyy
+    print('[CODE] Vaccum level is defined when the position is %s Angstrom (if False is printed, please using --yyy)' %opts.yyy)
     plt.savefig(opts.outname+'.png')
     plt.yticks() 
     plt.legend()
@@ -237,7 +238,7 @@ def main(opts):
         print('[ERROR]  Stop the calculation')
         sys.exit
     if check_the_input_path(opts.outname+'.txt'):
-        print '[CODE] there is same name for output, %s' %opts.outname
+        print('[CODE] there is same name for output, %s' %opts.outname)
         print('[CODE] Skip the reading input file: %s' %opts.inputname)
         #print('[ERROR]  Stop the calculation')
     else:
@@ -253,7 +254,7 @@ def main(opts):
 
     
     if opts.plotting: 
-        print '''[CODE] Drawing: ON   with  output (-o, --outname) : %s .txt''' %opts.outname   
+        print('''[CODE] Drawing: ON   with  output (-o, --outname) : %s .txt''' %opts.outname   )
         #set the figure format 
         width, height = opts.figsize
         xmin, xmax = opts.xlim
@@ -272,7 +273,7 @@ def main(opts):
             plot_1D_plot(opts.outname+'.txt',ax= ax0)
     else: 
         axx=''
-        print '''[CODE] Drawing: OFF   (If you want: use -f with/without -o or --outname)'''
+        print('''[CODE] Drawing: OFF   (If you want: use -f with/without -o or --outname)''')
         if opts.yyy:
             f = open(opts.outname+'.txt','r')
             x=[]; y=[]; i = 1; evac = 9999
@@ -286,19 +287,19 @@ def main(opts):
                     y.append(float(a.split()[1]))
                     if float(a.split()[0])  > opts.yyy and evac == 9999: 
                         evac = a.split()[1]
-            print """
+            print("""
             filename       = %s 
             vaccume energy = %s
             fermi energy   = %s
             work-function  = %f
-            """ %(opts.outname+'.txt', evac, ef, float(evac)-float(ef))
+            """ %(opts.outname+'.txt', evac, ef, float(evac)-float(ef)))
 
 
    #Ef = read_fermi(opts)
 
 
     if opts.macroscopic:
-        print '''[CODE] Calculating Macrocsropic average (differenticate)  : ON   ''' 
+        print('''[CODE] Calculating Macrocsropic average (differenticate)  : ON   ''' )
         target = opts.outname+'.txt'
         x, bar_V = macro(opts)
         d_bar_V = np.zeros(bar_V.shape,np.float)
@@ -345,7 +346,7 @@ def main(opts):
         plt.show()
         
  
-    print '[CODE] Finish converting and writting'
+    print('[CODE] Finish converting and writting')
 
 
 
