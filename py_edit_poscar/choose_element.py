@@ -107,7 +107,7 @@ def main(opts):
     new_compound, new_position1 = jh.component_from_positions(new_position)
 
     if len(new_position) == 0 :
-        print "error!!!"
+        print("error!!!")
     else:
         jh.w_poscar(position = new_position1,\
                compound  = new_compound, \
