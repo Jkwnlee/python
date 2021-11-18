@@ -58,7 +58,7 @@ def command_line_arg():
 ############################################################
 
 def main(opts):
-    print "[CODE] Start to read the given structure: ", opts.poscar
+    print("[CODE] Start to read the given structure: ", opts.poscar)
     if opts.out: output_name=opts.out
     else:    output_name = opts.poscar+'_targets.vasp'
 
@@ -68,12 +68,12 @@ def main(opts):
         print '[CODE] the -c option is chosen (not the elements)'
         if opts.condi[1] < opts.condi[0]: 
             reverse=True
-            print '[CODE] [0] %f is higher than [1] %f' %(opts.condi[0], opts.condi[1])
-            print '[CODE] atoms higher than [0] %f and lower then [1] %f are chosen' %(opts.condi[0], opts.condi[1])
+            print( '[CODE] [0] %f is higher than [1] %f' %(opts.condi[0], opts.condi[1]))
+            print( '[CODE] atoms higher than [0] %f and lower then [1] %f are chosen' %(opts.condi[0], opts.condi[1]))
         else : 
             reverse=False
-            print '[CODE] [1] %f is higher than [0] %f' %(opts.condi[1], opts.condi[0])
-            print '[CODE] choose element higher than %f and lower than %f' %(opts.condi[0],opts.condi[1])
+            print( '[CODE] [1] %f is higher than [0] %f' %(opts.condi[1], opts.condi[0]))
+            print( '[CODE] choose element higher than %f and lower than %f' %(opts.condi[0],opts.condi[1]))
 
         for a in range(len(position)):
             if opts.condi[0] > 1 or opts.condi[1] >1:            z= 1
@@ -93,7 +93,7 @@ def main(opts):
                     new_position.append(temp_position)
 
     else:
-        print "[CODE] Among the elements in the target file %s containing," %opts.poscar, compound[0], ", you choose:", opts.t_ele
+        print( "[CODE] Among the elements in the target file %s containing," %opts.poscar, compound[0], ", you choose:", opts.t_ele)
         for a in range(len(position)):
             for b in opts.t_ele:
                 if position[a][0] == b:
