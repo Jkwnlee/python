@@ -65,7 +65,7 @@ def main(opts):
     new_position =[];     temp_position=[]; select = True
     unitcell, compound, position = jh.r_cryst_vasp(opts.poscar)
     if opts.condi:
-        print '[CODE] the -c option is chosen (not the elements)'
+        print ('[CODE] the -c option is chosen (not the elements)')
         if opts.condi[1] < opts.condi[0]: 
             reverse=True
             print( '[CODE] [0] %f is higher than [1] %f' %(opts.condi[0], opts.condi[1]))
