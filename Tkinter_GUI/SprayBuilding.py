@@ -234,7 +234,7 @@ if __name__ == '__main__':
     defLabel.grid(column = 1, row = rown, columnspan =2 , pady=5, padx=5); rown +=1
 
     PotcarPathLabel,PotcarPathEntry = gui.LabelEntry('POTCAR Path (for Mass)', 1, rown)
-    PotcarPath=StringVar(gui.master, value='/team/Process_TCAD/JHLee/c_programs/vasp/POTCAR/PAW_PBE')
+    PotcarPath=StringVar(gui.master, value='~/vasp/POTCAR/PAW_PBE')
     PotcarPathEntry.configure(textvariable=PotcarPath)
     PotcarBrowse2 = gui.BrowsDirButton(PotcarPathEntry, 3, rown); rown +=1
 
